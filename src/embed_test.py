@@ -1,3 +1,5 @@
+# pip install cohere
+# pip install python-dotenv
 import cohere
 import json
 import os
