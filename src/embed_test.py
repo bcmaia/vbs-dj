@@ -1,13 +1,11 @@
 # pip install cohere
 # pip install python-dotenv
+
 import cohere
 import json
 import os
 import numpy as np
 from dotenv import load_dotenv
-
-def calc_diff(a, b):
-  return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
 # connect = True
 connect = False

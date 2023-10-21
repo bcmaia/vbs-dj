@@ -11,5 +11,7 @@ class MusicArchivist:
     def musics(self):
         return self.__musics
     
+    def calculate_similarity(a, b):
+        return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
 
