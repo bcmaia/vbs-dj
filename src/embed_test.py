@@ -1,30 +1,41 @@
 import cohere
 import json
 import os
+import numpy as np
 from dotenv import load_dotenv
 
+def calc_diff(a, b):
+  return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+
+# connect = True
 connect = False
 
 load_dotenv()
 
 token = os.environ.get('COHERE_TOKEN')
 
+music_filename = 'raw_music.json'
+
 music = None
-music_filename = 'test.json'
-
 with open(music_filename, 'r') as f:
-  music = json.load(f)
+  musics = json.load(f)
 
-print(token)
+musics_text = []
+for music in musics:
+  text = ""
+  for field in music:
+    text += (f"{field}: {music[field]}\n")
+
+  musics_text.append(text)
+
+print(musics_text)
 
 if (connect):
   co = cohere.Client(token)
+  response = co.embed(musics_text).embeddings
 
-print(music)
+  diff = []
+  for i in range(1, len(musics_text)):
+    diff.append(calc_diff(response[i - 1], response[i]))
 
-# response = co.embed(
-#   texts=[str(music)],
-#   model='small',
-# )
-
-# print(response)
+  print(diff)
