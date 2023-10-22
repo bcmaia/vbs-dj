@@ -15,22 +15,21 @@ print("O que precisa hoje?")
 known_commands = {
     "stop": 0,
     "play": 1,
-    "show": 2,
-    "search": 3,
-    "exit": -1,
+    "find": 2,
 }
+
 
 examples = [
     Example("Please, play", "play"),
+    Example("Hit it", "play"),
     Example("Stop now", "stop"),
-    Example("You can stop", "play"),
-    Example("Please, play", "play"),
-    Example("Please, play", "play"),
-    Example("Please, play", "play"),
-    Example("Please, play", "play"),
-    Example("Please, play", "play"),
-    Example("Please, play", "play"),
-    Example("Please, play", "play"),
+    Example("You can stop", "stop"),
+    Example("Could you show me", "find"),
+    Example("List this", "find"),
+    Example("Search for your mom", "find"),
+    Example("I want sonata", "play"),
+    Example("Can I see", "find"),
+    Example("One moment", "stop")
 ]
 
 while True:
