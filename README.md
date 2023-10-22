@@ -20,7 +20,7 @@ In this expanded version of the README, we will provide additional information a
 
 ### Project Overview
 
-Our project, named "VBS-DJ", was developed as part of the Hackton Semcomp 2023 event. The primary goal of Corvus was to create a web application that could act as a personal DJ, offering music recommendations based on the mood and vibes of a user's current song. This innovative recommendation system was made possible through the use of Cohere's LLM (Language Model) tools, an intuitive and powerfull api
+Our project, named "VBS-DJ", was developed as part of the Hackton Semcomp 2023 event. The primary goal of Corvus was to create a web application that could act as a personal DJ, offering music recommendations based on the mood and vibes of a user's current song. This innovative recommendation system was made possible through the use of Cohere's LLM (Language Model) tools, an intuitive and powerfull api.
 
 ### Setup
 To run the our application locally, make sure you have python3 installed and also install the following libraries:
