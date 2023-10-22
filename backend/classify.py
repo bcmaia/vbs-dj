@@ -11,7 +11,7 @@ load_dotenv()
 api_is_active = False
 token = os.environ.get('COHERE_TOKEN')
 
-co = cohere.Client('COHERE_TOKEN')
+co = cohere.Client(token)
 
 #examples and their matching classification for the cohere classify
 examples = [
