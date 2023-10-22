@@ -30,7 +30,7 @@ class Back:
         return [column_list[i].split('_')[0] for i in range(8, 30)]
 
     def get_genres(self):
-        return self.archivist.df['genre'].unique.tolist()
+        return self.archivist.df['genre'].unique()
 
     def search_music(
         self,
