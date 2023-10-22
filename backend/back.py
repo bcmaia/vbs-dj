@@ -4,6 +4,7 @@ from .classify import classify as classify
 import pandas as pd
 import streamlit as st
 import numpy as np
+import json
 
 ENGENEERING = "Answer only with the name of the music as the following example: 'Fur Elise'\nTell me only the name of the music are you being asked to play."
 
@@ -11,6 +12,7 @@ class Back:
     def __init__(self, token: str, data_path):
         self.api = ApiMaster(token, True).connect()
         self.archivist = MusicArchivist(data_path)
+        self.embeds_df = pd.read_csv('./data/database_10000.csv')
 
     def classify_instruction(self, input_string):  # receives a string
         return classify(
@@ -60,26 +62,27 @@ class Back:
     def calculate_similarity(self, a, b):
         return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
-    def entropy_search(self, df, input: str, top_n=3):
+    def entropy_search(self, input: str, top_n=3):
         input_embedding = self.api.embed(input)
-        songs = df.copy()
+        songs = self.embeds_df.copy()
         songs.rename(columns={'Unnamed: 0': 'Id'}, inplace=True)
         map_songs = {song: idx for idx, song in enumerate(songs.Id.unique())}
         songs['Id'] = songs['Id'].map(map_songs)
 
-        embeds = songs['embeds'].tolist()
-        diff = []   
+        embeds = [json.loads(x) for x in songs['embeds']]
 
+        diff = []   
         for embed in embeds:
             diff.append(self.calculate_similarity(input_embedding, embed))
         
         songs['similarity'] = diff
         return songs.sort_values(by='similarity', ascending=False).head(top_n)
 
-    def predict_vibe(self, df, input, k_means = 10):
+    def predict_vibe(self, input, k_means = 10):
         input_embedding = self.api.embed(input)
 
-        similars = self.entropy_search(df, input, k_means).tolist()
+        df = self.embeds_df.copy()
+        similars = self.entropy_search(df, input_embedding, k_means).tolist()
         aux = []
         for i in range(k_means):
             aux.append([similars[i][j] for j in range(7, 29)])

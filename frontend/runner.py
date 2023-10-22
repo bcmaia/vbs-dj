@@ -185,9 +185,18 @@ def front_runner(backref):
                 st.dataframe(df.head(10))
 
 
+    st.write("What kind of song do you wanna listen?")
+    vibe_input = st.text_input("Vibe input:")
 
+    @st.cache_data
+    def entropy_search(vibe_input):
+        return backref.entropy_search(vibe_input).to_dict(orient="records")
 
-
+    with btn_cols[6]:
+        if st.toggle("📼") and not state['music_queue']:
+            df = entropy_search(vibe_input)
+            state['music_queue'] += df
+            st.rerun()
 
 
 
