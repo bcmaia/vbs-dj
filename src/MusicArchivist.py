@@ -46,15 +46,16 @@ class MusicArchivist:
 
         final_string = ''
         for key in song_dict:
-            if key != 'lyrics' and key != 'Id' and key != 'len':
-                names = key.split('_')
-                
-                if len(names) == 2:
-                    final_string += "{} {}: {}\n".format(names[0], names[1], song_dict[key])
-                else:
-                    final_string += "{}: {}\n".format(names[0], song_dict[key])
-            elif key == 'len':
-                final_string += "length: {} seconds\n".format(song_dict[key])
+            if song_dict[key] != 'Low' and song_dict[key] != 'Very Low' and song_dict[key] != 'Average':
+                if key != 'lyrics' and key != 'Id' and key != 'len':
+                    names = key.split('_')
+                    
+                    if len(names) == 2:
+                        final_string += "{} {}: {}\n".format(names[0], names[1], song_dict[key])
+                    else:
+                        final_string += "{}: {}\n".format(names[0], song_dict[key])
+                elif key == 'len':
+                    final_string += "length: {} seconds\n".format(song_dict[key])
 
         final_string += "lyrics: \n {}\n\n".format(song_dict['lyrics'])
         return final_string
