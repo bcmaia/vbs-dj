@@ -7,14 +7,14 @@ import os
 import numpy as np
 from dotenv import load_dotenv
 
-# connect = True
-connect = False
+connect = True
+# connect = False
 
 load_dotenv()
 
 token = os.environ.get('COHERE_TOKEN')
 
-music_filename = 'raw_music.json'
+music_filename = '../data/musics.json'
 
 music = None
 with open(music_filename, 'r') as f:
@@ -34,8 +34,10 @@ if (connect):
   co = cohere.Client(token)
   response = co.embed(musics_text).embeddings
 
-  diff = []
-  for i in range(1, len(musics_text)):
-    diff.append(calc_diff(response[i - 1], response[i]))
+  print(response)
 
-  print(diff)
+  # diff = []
+  # for i in range(1, len(musics_text)):
+  #   diff.append(calc_diff(response[i - 1], response[i]))
+
+  # print(diff)

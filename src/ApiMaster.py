@@ -17,4 +17,4 @@ class ApiMaster:
         return self.__co.embed(
             texts=txt,
             model="small",
-        )
+        ).embeddings

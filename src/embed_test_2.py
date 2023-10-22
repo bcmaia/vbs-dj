@@ -18,17 +18,18 @@ def json_to_text(musics):
 load_dotenv()
 api_is_active = False
 token = os.environ.get('COHERE_TOKEN')
-music_file_path = '../data/musics.json'
+music_file_path = '../data/tcc_ceds_music.csv'
 
 # Code 
 archivist = MusicArchivist(music_file_path)
 
-music_texts = json_to_text(archivist.musics)
+music_texts = archivist.get_strings(1)
 
 print(music_texts)
 
 api = ApiMaster(token, api_is_active)
 api = api.connect()
 
-embbeds = api.embed(music_texts[0])
+embbeds = api.embed("Banana")
+
 print(embbeds)

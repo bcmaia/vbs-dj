@@ -16,6 +16,7 @@ known_commands = {
     "stop": 0,
     "play": 1,
     "show": 2,
+    "search": 3,
     "exit": -1,
 }
 
@@ -55,6 +56,9 @@ while True:
                     print(f"Currently playing {music}.")
                 else:
                     print("No music is currently playing.")
+                
+            case 3:
+                print(f"Searching for musics similar to {user_input[1]}")
 
             case -1:
                 break
