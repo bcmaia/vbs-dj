@@ -6,6 +6,7 @@ from youtube_search import YoutubeSearch
 from pytube import YouTube
 import ffmpeg
 
+# Queries YouTube for a video 
 @st.cache_data
 def get_audio(query : str):
     results = YoutubeSearch(query, max_results=10).to_dict()
@@ -22,6 +23,7 @@ def get_audio(query : str):
 
     return audio
 
+# Shows the video
 def show_audioplayer(query : str):
     audio = get_audio(query)
     st.audio(audio, format='audio/wav')

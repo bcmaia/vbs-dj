@@ -4,12 +4,14 @@ import pandas as pd
 import random
 import warnings
 
+# Deals with the files
 class MusicArchivist:
 
     def __init__(self, music_file_path : str) -> None:
         songs = pd.read_csv(music_file_path) # Reading
         songs.rename(columns={'Unnamed: 0': 'Id'}, inplace=True) # Renaming
-        warnings.filterwarnings("ignore")
+
+        warnings.filterwarnings("ignore") # Hides the depracation warnings
 
         # Mapping the ids
         map_songs = {song: idx for idx, song in enumerate(songs.Id.unique())}
@@ -17,13 +19,16 @@ class MusicArchivist:
         
         self.__musics = self.stardardise_values(songs)
 
+    # Instances the dataframe with music data
     @property
     def df(self):
         return self.__musics
 
+    # Calculate the similarity between the embeddings of two songs
     def calculate_similarity(a, b):
         return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
+    # Converts numeric values to natural language representation
     @staticmethod
     def stardardise_values(df):
         valid_columns = df.columns.values.tolist()
@@ -45,6 +50,7 @@ class MusicArchivist:
         df = df.drop(columns=['age'])
         return df
 
+    # Converts music data to natural language formatting
     @staticmethod
     def music_to_str(self, df, songId):
         song_dict = df.loc[(df.Id==songId)].to_dict(orient="records")[0]
@@ -65,6 +71,7 @@ class MusicArchivist:
         final_string += "lyrics: \n {}\n\n".format(song_dict['lyrics'])
         return final_string
 
+    # Requests a number of samples from the test data and turns them into natural language
     def get_strings(self, num):
         df = self.__musics.copy()
         sample_ids = random.sample(df['Id'].unique().tolist(), num)
@@ -74,6 +81,3 @@ class MusicArchivist:
             string_list.append(self.music_to_str(self, df, song))
 
         return string_list
-        
-    def preprocess(self):
-        pass
