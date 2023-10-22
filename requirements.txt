@@ -1,0 +1,10 @@
+cohere 
+fuzzywuzzy 
+pandas 
+streamlit 
+numpy 
+python-dotenv 
+pytube 
+pydub 
+youtube_search 
+ffmpeg
