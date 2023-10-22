@@ -32,7 +32,7 @@ examples = [
     Example("Next", "next"),
     Example("Further ahead", "next"),
     Example("Skip", "next"),
-    Example("Play", "play"),
+    Example("Play", "find"),
     Example("Hit it", "play"),
     Example("I want sonata", "play"),
     Example("Run the song", "play"),
@@ -63,6 +63,7 @@ examples = [
     Example("pwdkp loiwmc sabfk","error"),
     Example("break","break"),
     Example("Breaker","break"),
+    Example("Resume", "play"),
 ]
 
 #receives a string as input
