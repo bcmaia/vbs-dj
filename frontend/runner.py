@@ -22,8 +22,6 @@ def front_runner(backref):
         {"track_name": "gangstar paradise", "len": 10.7},
     ]
 
-
-
     # Initialize app state
     @st.cache_resource
     def get_state():
@@ -39,10 +37,6 @@ def front_runner(backref):
             "vibe": "",
             "autoplay": True,
         }
-
-    # @st.cache_resource
-    # def update_state(state, key, value):
-    #     state[key] = value
 
     state = get_state()
 
@@ -61,8 +55,6 @@ def front_runner(backref):
 
     # Display the music_queue
 
-    # st.write(state["music_queue"])
-
     slot_queues = st.columns(2)
 
     def play():
@@ -73,7 +65,6 @@ def front_runner(backref):
         if state["current_song"] is None or state["current_song"]['len'] is None: state["current_song"]['len'] = 30
         state["is_playing"] = True
 
-    # @st.cache_data
     def entropy_search(vibe_input):
         return backref.entropy_search(vibe_input).to_dict(orient="records")
     
@@ -82,7 +73,6 @@ def front_runner(backref):
         
         if state['autoplay'] and (state["music_queue"] is None or len(state["music_queue"]) < 3):
             state['music_queue'] = state['music_queue'] + entropy_search(state['vibe'])
-            print(state['music_queue'])
 
         if state["music_queue"]: 
             state["current_song"] = state["music_queue"].pop(0)
@@ -114,17 +104,6 @@ def front_runner(backref):
         state['progress'] = 0
 
         return True
-
-    # def play_next():
-    #     if state['progress'] is None: state['progress'] = 0
-    #     if state["current_song"]: state["played_songs"].append(state["current_song"])
-        
-    #     if state["music_queue"]: state["current_song"] = state["music_queue"].pop(0)
-    #     else: state["current_song"] = None
-
-    #     state['progress'] = 0
-
-    #     return True
 
     if state['error_msg']:
         with slot_err:
@@ -213,10 +192,6 @@ def front_runner(backref):
     with btn_cols[6]:
         state['autoplay'] = st.toggle("Auto", state['autoplay'])
 
-
-
-
-
     # Create a Streamlit web app
     st.header("What are you looking for?")
 
@@ -254,7 +229,6 @@ def front_runner(backref):
 
     with cols[1]:
         if st.button("Search"):
-            # st.write("You entered:", user_input)
             state['searching'] = True
             state['search_result'] = backref.search_music(
                 prompt=user_input,
@@ -262,13 +236,10 @@ def front_runner(backref):
                 moods=selected_moods,
             )
             st.rerun
-            # raise Exception("Cannot play: " + music + ". Skill issue.")
 
     with cols[2]:
         if st.button("Execute"):
-            # st.write("You entered:", user_input)
             instruction, trust = backref.classify_instruction(user_input)
-            print(instruction, trust)
             if trust < MIN_TRUST_LEVEL:
                 state['error_msg'] = "ERROR: Could not understand the command."
             else:
@@ -278,32 +249,15 @@ def front_runner(backref):
                     case "next": play_next()
                     case 'stop': pause()
                     case 'find': 
-                        # print("In find!")
                         state['searching'] = True
                         state['search_result'] = backref.search_music(
                             prompt=user_input,
                             genres=selected_genres,
                             moods=selected_moods,
                         )
-                        # print(state['search_result'])
                         
                     case 'break': raise Exception("💣")
                 st.rerun()
-
-    
-
-    
-
-
-    # if selected_genres:
-    #     st.write("Selected Tags:", selected_genres)
-
-    # Add a slider
-    # slider_value = st.slider("Moods:", min_value=0, max_value=100, value=50)
-
-    # slider_value = st.slider("Genrers:", min_value=0, max_value=100, value=50)
-
-    # st.write("Slider Value:", slider_value)
 
     def dataframe_with_selections(df):
         df_with_selections = df.copy()
@@ -323,12 +277,9 @@ def front_runner(backref):
 
     selection = None
     if state['searching'] and state['search_result']:
-        # st.write(state['search_result'])
         l = list(state['search_result'].values())
         df = pd.DataFrame(l, columns=list(l[0].keys()))
         selection = dataframe_with_selections(df)
-        print(selection)
-        # print(selection)
 
     cols_add_musics = st.columns(2)
     with cols_add_musics[0]:
@@ -337,8 +288,6 @@ def front_runner(backref):
             for x in df:
                 state['music_queue'].insert(0, x)
             st.rerun()
-            
-
         
     with cols_add_musics[1]:
         if st.button("Add to queue")and None is not selection:
@@ -346,24 +295,6 @@ def front_runner(backref):
             for x in df:
                 state['music_queue'].append(x)
             st.rerun()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     # Progress bar
     if None != state["current_song"]:
@@ -379,4 +310,3 @@ def front_runner(backref):
                 if (i >= 100):
                     play_next()
                     st.rerun()
-

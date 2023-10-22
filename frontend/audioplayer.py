@@ -12,7 +12,6 @@ def get_audio(query : str):
     link = 'https://www.youtube.com/watch?v=' + results[0]['id']
     yt = YouTube(link)
 
-    # https://github.com/pytube/pytube/issues/301
     stream_url = yt.streams.all()[0].url 
     audio, err = (
         ffmpeg

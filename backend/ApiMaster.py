@@ -2,7 +2,6 @@ import cohere
 import random
 from fuzzywuzzy import fuzz
 
-
 def get_mood_similarity(row, expected_moods, column_list):
 
     mood_list = []
@@ -13,13 +12,11 @@ def get_mood_similarity(row, expected_moods, column_list):
     
     if len(list(set(mood_list))) == 0: return 0
     else: return len(list(set(mood_list) & set(expected_moods))) / len(set(mood_list + expected_moods))
-
     
 def similarity(value, expected_value):
     ratio = fuzz.ratio(value, expected_value)
     if ratio >= 0.7: return ratio
     else: return 0
-    
 
 def restriction_search(df, amount=100, song_name=None, artist=None, most_recent=None, prefered_genres=[], prefered_moods=[], weights=[0.33, 0.33, 0.33, 0.33, 0.33]):
     restriction_df = df.copy()
@@ -35,9 +32,6 @@ def restriction_search(df, amount=100, song_name=None, artist=None, most_recent=
 
     restriction_df['w_genres'] = 0
     restriction_df.loc[(restriction_df['genre'].isin(prefered_genres)), 'w_genres'] = 1
-
-    #restriction_df['w_song'] = 0
-    #restriction_df['w_artist'] = 0
 
     w_song_list = restriction_df['track_name'].tolist()
     ratio_song_list = [similarity(song, song_name) for song in w_song_list]
@@ -55,8 +49,6 @@ def restriction_search(df, amount=100, song_name=None, artist=None, most_recent=
     restriction_df['w'] = (weights[0]*restriction_df['w_song'] + weights[1]*restriction_df['w_artist'] + weights[2]*restriction_df['w_year'] + weights[3]*restriction_df['w_genres'] + weights[4]*restriction_df['w_moods'])/sum(weights)
 
     return restriction_df.sort_values(by='w', ascending=False).head(amount)
-
-
 
 def song_string(df, songId):
     song_dict = df.loc[(df.Id==songId)].to_dict(orient="records")[0]
@@ -76,7 +68,6 @@ def song_string(df, songId):
 
     final_string += "lyrics: \n {}\n\n".format(song_dict['lyrics'])
     return final_string
-
 
 def string_many_songs(
     df,
@@ -112,7 +103,6 @@ def string_many_songs(
         string_list.append(aux_list)
 
     return string_list
-
 
 class ApiMaster:
     def __init__(self, token: str, active: bool) -> None:

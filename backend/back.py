@@ -120,8 +120,6 @@ class Back:
     def find_next_music(self, df, curr_list):
         pass
         
-
-
 @st.cache_resource
 def get_back(token, data_path):
     return Back(token, data_path)

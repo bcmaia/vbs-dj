@@ -65,17 +65,6 @@ class MusicArchivist:
         final_string += "lyrics: \n {}\n\n".format(song_dict['lyrics'])
         return final_string
 
-        # song_dict = self.__musics.loc[(self.__musics.Id==songId)].to_dict(orient="records")[0]
-        # print(songId)
-
-        # final_string = ''
-        # for key in song_dict:
-        #     if key != 'lyrics' and key != 'Id':
-        #         final_string += "{}: {}\n".format(key, song_dict[key])
-
-        # final_string += "lyrics: \n {}\n\n".format(song_dict['lyrics'])
-        # return final_string
-
     def get_strings(self, num):
         df = self.__musics.copy()
         sample_ids = random.sample(df['Id'].unique().tolist(), num)
@@ -86,17 +75,5 @@ class MusicArchivist:
 
         return string_list
         
-        # songlist = df['Id'].unique().tolist()
-        # songlist = songlist[0:num]
-
-        # strings = []
-        # for song in songlist:
-        #     strings.append(self.music_to_str(self, self.__musics, song))
-
-        # return strings
-
-    # def save(self, name):
-    #     print(self.get_strings())
-    
     def preprocess(self):
         pass

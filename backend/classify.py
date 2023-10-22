@@ -3,9 +3,6 @@ from cohere.responses.classify import Example
 import os
 from dotenv import load_dotenv
 
-#pip install dotenv
-#pip install cohere
-
 # Setup
 load_dotenv()
 api_is_active = False
