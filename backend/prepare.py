@@ -9,9 +9,9 @@ token = os.environ.get('COHERE_TOKEN')
 
 api_is_active = True
 
-music_file_path = '../data/tcc_ceds_music.csv'
+data_path = '../data/tcc_ceds_music.csv'
 
-archivist = MusicArchivist(music_file_path)
+archivist = MusicArchivist(data_path)
 
 num = 1000
 teste = archivist.get_strings(num)
@@ -21,24 +21,24 @@ api = api.connect()
 
 # print(teste)
 
-query = 'Which music is the best to dance to?'
-results = api.rerank(query, teste, 3)
+# query = 'Which music is the best to dance to?'
+# results = api.rerank(query, teste, 3)
 
-print(results)
-# embeds = []
-# i = 0
-# for music_text in teste:
-#     print(i)
-#     embbeds.append(api.embed(music_text))
-#     i += 1
+# print(results)
+embeds = []
+i = 0
+for music_text in teste:
+    print(i)
+    embeds.append(api.embed(music_text))
+    i += 1
 
-# output_name = 'database.csv'
+output_name = 'database.csv'
 
-# # df = pd.read_csv(music_file_path)
-# # df = df.head(num)
+df = pd.read_csv(data_path)
+df = df.head(num)
 
-# # em = pd.DataFrame(embbeds)
+em = pd.DataFrame(embeds)
 
-# # df = df.join(em)
+df = df.join(em)
 
-# # df.to_csv('../data/database.csv')
+df.to_csv('../data/database.csv')

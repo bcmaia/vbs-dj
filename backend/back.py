@@ -4,10 +4,7 @@ from .classify import classify as classify
 import pandas as pd
 import streamlit as st
 
-
-
 ENGENEERING = "Answer only with the name of the music as the following example: 'Fur Elise'\nTell me only the name of the music are you being asked to play."
-
 
 class Back:
     def __init__(self, token: str, data_path):
