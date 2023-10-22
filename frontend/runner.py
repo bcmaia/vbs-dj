@@ -36,6 +36,8 @@ def front_runner(backref):
             "error_msg": None,
             "searching": False,
             "audio": False,
+            "vibe": "",
+            "autoplay": True,
         }
 
     # @st.cache_resource
@@ -54,7 +56,7 @@ def front_runner(backref):
     slot_err = st.empty()
 
     # Buttons here
-    btn_cols = st.columns(8, gap="small")
+    btn_cols = st.columns(7, gap="small")
 
 
     # Display the music_queue
@@ -65,11 +67,31 @@ def front_runner(backref):
 
     def play():
         if state["is_playing"]: return
-        if state["current_song"] is None:
+        if state["current_song"] is None and state["music_queue"]:
             state["current_song"] = state["music_queue"].pop(0)
 
-        if state["current_song"]['len'] is None: state["current_song"]['len'] = 30
+        if state["current_song"] is None or state["current_song"]['len'] is None: state["current_song"]['len'] = 30
         state["is_playing"] = True
+
+    # @st.cache_data
+    def entropy_search(vibe_input):
+        return backref.entropy_search(vibe_input).to_dict(orient="records")
+    
+    def play_next():
+        if state["current_song"]: state["played_songs"].append(state["current_song"])
+        
+        if state['autoplay'] and (state["music_queue"] is None or len(state["music_queue"]) < 3):
+            state['music_queue'] = state['music_queue'] + entropy_search(state['vibe'])
+            print(state['music_queue'])
+
+        if state["music_queue"]: 
+            state["current_song"] = state["music_queue"].pop(0)
+        else:
+            state["current_song"] = None
+
+        state['progress'] = 0
+
+        return True
 
     def play_now(music):
         state['current_song'] = music
@@ -93,16 +115,16 @@ def front_runner(backref):
 
         return True
 
-    def play_next():
-        if state['progress'] is None: state['progress'] = 0
-        if state["current_song"]: state["played_songs"].append(state["current_song"])
+    # def play_next():
+    #     if state['progress'] is None: state['progress'] = 0
+    #     if state["current_song"]: state["played_songs"].append(state["current_song"])
         
-        if state["music_queue"]: state["current_song"] = state["music_queue"].pop(0)
-        else: state["current_song"] = None
+    #     if state["music_queue"]: state["current_song"] = state["music_queue"].pop(0)
+    #     else: state["current_song"] = None
 
-        state['progress'] = 0
+    #     state['progress'] = 0
 
-        return True
+    #     return True
 
     if state['error_msg']:
         with slot_err:
@@ -185,11 +207,11 @@ def front_runner(backref):
                 st.dataframe(df.head(10))
 
 
+    st.write("What kind of song do you wanna listen?")
+    state['vibe'] = st.text_input("Vibe input:")
 
-
-
-
-
+    with btn_cols[6]:
+        state['autoplay'] = st.toggle("Auto", state['autoplay'])
 
 
 
@@ -205,6 +227,22 @@ def front_runner(backref):
     # Add a button
     cols = st.columns(5)
 
+    @st.cache_resource
+    def get_moods():
+        return backref.get_moods()
+    
+    @st.cache_resource
+    def get_genre():
+        return backref.get_genres()
+
+    # Define a list of predetermined tags
+    genres_tag_list = get_genre() #["Pop", "Rock", "Ambience", "Jass", "CyberPhonk"]
+    moods_tag_list = get_moods() #["Sad", "Eletric", "Moody", "Relax", "Anger"]
+
+    # Add a tag selection field
+    selected_genres = st.multiselect("Genres", genres_tag_list)
+    selected_moods = st.multiselect("Moods", moods_tag_list)
+
     with cols[0]:
         if st.button("Quick Search"):
             state['searching'] = True
@@ -219,7 +257,9 @@ def front_runner(backref):
             # st.write("You entered:", user_input)
             state['searching'] = True
             state['search_result'] = backref.search_music(
-                prompt=user_input
+                prompt=user_input,
+                genres=selected_genres,
+                moods=selected_moods,
             )
             st.rerun
             # raise Exception("Cannot play: " + music + ". Skill issue.")
@@ -241,24 +281,22 @@ def front_runner(backref):
                         # print("In find!")
                         state['searching'] = True
                         state['search_result'] = backref.search_music(
-                            prompt=user_input
+                            prompt=user_input,
+                            genres=selected_genres,
+                            moods=selected_moods,
                         )
                         # print(state['search_result'])
                         
                     case 'break': raise Exception("💣")
                 st.rerun()
 
-    # Define a list of predetermined tags
-    genres_tag_list = ["Pop", "Rock", "Ambience", "Jass", "CyberPhonk"]
-    moods_tag_list = ["Sad", "Eletric", "Moody", "Relax", "Anger"]
+    
 
-    # Add a tag selection field
-    selected_genres = st.multiselect("Genres", genres_tag_list)
-    selected_moods = st.multiselect("Moods", moods_tag_list)
+    
 
 
-    if selected_genres:
-        st.write("Selected Tags:", selected_genres)
+    # if selected_genres:
+    #     st.write("Selected Tags:", selected_genres)
 
     # Add a slider
     # slider_value = st.slider("Moods:", min_value=0, max_value=100, value=50)
