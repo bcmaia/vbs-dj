@@ -26,10 +26,11 @@ class Back:
         return self.api.generate(f'"{input}" \n\n {engineering}')
 
     def get_moods(self):
-        pass
+        column_list = self.archivist.df.columns.values.tolist()
+        return [column_list[i].split('_')[0] for i in range(8, 30)]
 
     def get_genres(self):
-        pass
+        return self.archivist.df['genre'].unique.tolist()
 
     def search_music(
         self,
