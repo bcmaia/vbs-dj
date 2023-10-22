@@ -11,10 +11,10 @@ music_queue = [
 ]
 
 music_pool = [
-    {"track_name": "Song 1", "len": 5.7},
-    {"track_name": "Song 2", "len": 2.7},
-    {"track_name": "Song 2.5", "len": 70.7},
-    {"track_name": "Song 3", "len": 10.7},
+    {"track_name": "aaaaa", "len": 56.7},
+    {"track_name": "vvvvv", "len": 2.67},
+    {"track_name": "Songdasdas5", "len": 770.7},
+    {"track_name": "Sffgg", "len": 12.7},
 ]
 
 
@@ -110,6 +110,10 @@ with btn_cols[3]:
     if st.button("Previous"):
         play_previus()
 
+with btn_cols[4]:
+    if st.button("Clear"):
+        raise Exception("NOT INPLEMENTED")
+
 # Update progress bar
 if state["is_playing"]:
     if state["progress"] < 100:
@@ -160,6 +164,7 @@ cols = st.columns(5)
 with cols[0]:
     if st.button("Search"):
         st.write("You entered:", user_input)
+        state['searching'] = True
 
 with cols[1]:
     if st.button("Execute"):
@@ -200,7 +205,20 @@ def dataframe_with_selections(df):
     selected_rows = edited_df[edited_df.Select]
     return selected_rows.drop('Select', axis=1)
 
-selection = dataframe_with_selections(df)
+# TODO: implement search
+search_result = pd.DataFrame(music_pool, columns=list(music_pool[0].keys()))
+
+if state['searching']:
+    selection = dataframe_with_selections(search_result)
+
+cols_add_musics = st.columns(2)
+with cols_add_musics[0]:
+    if st.button("Play next"):
+        raise Exception("NOT INPLEMENTED")
+    
+with cols_add_musics[1]:
+    if st.button("Add to queue"):
+        raise Exception("NOT INPLEMENTED")
 
 
 
