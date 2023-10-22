@@ -1,6 +1,7 @@
 import streamlit as st
 import time
 import pandas as pd
+from .audioplayer import show_audioplayer
 
 # CONSTANTS
 MIN_TRUST_LEVEL = 0.5
@@ -8,17 +9,17 @@ MIN_TRUST_LEVEL = 0.5
 def front_runner(backref):
     # Define your music_queue of tuples (name, duration)
     music_queue = [
-        {"track_name": "Song 1", "len": 5.7},
-        {"track_name": "Song 2", "len": 2.7},
-        {"track_name": "Song 2.5", "len": 70.7},
-        {"track_name": "Song 3", "len": 10.7},
+        {"track_name": "Dejavu", "len": 5.7},
+        {"track_name": "Crab rave", "len": 2.7},
+        {"track_name": "Foggy dew", "len": 70.7},
+        {"track_name": "gangstar paradise", "len": 10.7},
     ]
 
     music_pool = [
-        {"track_name": "aaaaa", "len": 56.7},
-        {"track_name": "vvvvv", "len": 2.67},
-        {"track_name": "Songdasdas5", "len": 770.7},
-        {"track_name": "Sffgg", "len": 12.7},
+        {"track_name": "Dejavu", "len": 5.7},
+        {"track_name": "Crab rave", "len": 2.7},
+        {"track_name": "Foggy dew", "len": 70.7},
+        {"track_name": "gangstar paradise", "len": 10.7},
     ]
 
 
@@ -34,6 +35,7 @@ def front_runner(backref):
             "is_playing": False,
             "error_msg": None,
             "searching": False,
+            "audio": False,
         }
 
     # @st.cache_resource
@@ -46,6 +48,7 @@ def front_runner(backref):
     st.title("Music Player App")
 
     # Slots
+    slot_player = st.empty()
     slot_curr_playing = st.empty()
     slot_progress_bar = st.empty()
     slot_err = st.empty()
@@ -65,6 +68,10 @@ def front_runner(backref):
         if state["current_song"] is None:
             state["current_song"] = state["music_queue"].pop(0)
         state["is_playing"] = True
+
+    def play_now(music):
+        state['current_song'] = music
+        pĺay()
 
     def pause():
         state["is_playing"] = False
@@ -119,6 +126,22 @@ def front_runner(backref):
     with btn_cols[3]:
         if st.button("Clear"):
             raise Exception("NOT INPLEMENTED")
+        
+    with btn_cols[5]:
+        if state['current_song'] and st.button("🎶"):
+            state['audio'] = not state['audio']
+            pause()
+            st.rerun()
+
+    with btn_cols[4]:
+        if st.button("🪩"):
+            play_now({'track_name': 'Never Gonna Give You Up ( Rick roll song)', 'duration': 212.0})
+            state['audio'] = not state['audio']
+            pause()
+            st.rerun()
+
+    if state['audio']:
+        with slot_player: show_audioplayer(state['current_song']['track_name'])
 
     # Update progress bar
     if state["is_playing"]:
@@ -135,7 +158,8 @@ def front_runner(backref):
     # Display the currently playing and played songs
     if state["current_song"]:
         with slot_curr_playing:
-            st.write("Currently Playing: " + state["current_song"]['track_name'])
+            t = "..." if state["current_song"]['track_name'] == 'Never Gonna Give You Up ( Rick roll song)' else state["current_song"]['track_name']
+            st.write("Currently Playing: " + t)
 
     if state["music_queue"]:
         with slot_queues[0]:
