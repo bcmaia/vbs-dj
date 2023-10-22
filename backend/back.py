@@ -8,30 +8,37 @@ import json
 
 ENGENEERING = "Answer only with the name of the music as the following example: 'Fur Elise'\nTell me only the name of the music are you being asked to play."
 
+# Class that deals with the backend
 class Back:
     def __init__(self, token: str, data_path):
         self.api = ApiMaster(token, True).connect()
         self.archivist = MusicArchivist(data_path)
         self.embeds_df = pd.read_csv('./data/database_10000.csv')
 
+    # Deals with classification requests
     def classify_instruction(self, input_string):  # receives a string
         return classify(
             input_string
         )  # returns a string and a float (a command and a confidence)
 
+    # Extracts the song's name from the user's input
     def identify_music(self, input: str, engineering: str = ENGENEERING):
         return self.api.generate(f'"{input}" \n\n {engineering}')
 
+    # Enchances the prompt with the help of the Cohere's generation model
     def prompt_enhancement(self, input: str, engineering: str):
         return self.api.generate(f'"{input}" \n\n {engineering}')
 
+    # Get a list of all moods of the data
     def get_moods(self):
         column_list = self.archivist.df.columns.values.tolist()
         return [column_list[i].split('_')[0] for i in range(8, 30)]
 
+    # Get a list of all genres of the data
     def get_genres(self):
         return self.archivist.df['genre'].unique()
 
+    # Search for an specific song
     def search_music(
         self,
         prompt: str | None,
@@ -59,9 +66,11 @@ class Back:
             most_recent=newer,
         )
     
+    # Calculates the similarity between two embeddings
     def calculate_similarity(self, a, b):
         return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
+    # Uses the similarity between various songs' embeddings to determine which songs to return
     def entropy_search(self, input: str, top_n=3):
         input_embedding = self.api.embed(input)
         songs = self.embeds_df.copy()
@@ -78,6 +87,7 @@ class Back:
         songs['similarity'] = diff
         return songs.sort_values(by='similarity', ascending=False).head(top_n)
 
+    # Calculates the values of certain songs attributes using its embeddings
     def predict_vibe(self, input, k_means = 10):
         input_embedding = self.api.embed(input)
 
@@ -117,9 +127,7 @@ class Back:
 
         return prediction
 
-    def find_next_music(self, df, curr_list):
-        pass
-        
+# Prevents some quirks
 @st.cache_resource
 def get_back(token, data_path):
     return Back(token, data_path)
