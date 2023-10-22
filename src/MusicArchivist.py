@@ -55,7 +55,7 @@ class MusicArchivist:
                     else:
                         final_string += "{}: {}\n".format(names[0], song_dict[key])
                 elif key == 'len':
-                    final_string += "length: {} seconds\n".format(song_dict[key])
+                    final_string += "lyric length: {}\n".format(song_dict[key])
 
         final_string += "lyrics: \n {}\n\n".format(song_dict['lyrics'])
         return final_string
