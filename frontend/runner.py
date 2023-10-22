@@ -227,6 +227,22 @@ def front_runner(backref):
     # Add a button
     cols = st.columns(5)
 
+    @st.cache_resource
+    def get_moods():
+        return backref.get_moods()
+    
+    @st.cache_resource
+    def get_genre():
+        return backref.get_genres()
+
+    # Define a list of predetermined tags
+    genres_tag_list = get_genre() #["Pop", "Rock", "Ambience", "Jass", "CyberPhonk"]
+    moods_tag_list = get_moods() #["Sad", "Eletric", "Moody", "Relax", "Anger"]
+
+    # Add a tag selection field
+    selected_genres = st.multiselect("Genres", genres_tag_list)
+    selected_moods = st.multiselect("Moods", moods_tag_list)
+
     with cols[0]:
         if st.button("Quick Search"):
             state['searching'] = True
@@ -241,7 +257,9 @@ def front_runner(backref):
             # st.write("You entered:", user_input)
             state['searching'] = True
             state['search_result'] = backref.search_music(
-                prompt=user_input
+                prompt=user_input,
+                genres=selected_genres,
+                moods=selected_moods,
             )
             st.rerun
             # raise Exception("Cannot play: " + music + ". Skill issue.")
@@ -263,32 +281,22 @@ def front_runner(backref):
                         # print("In find!")
                         state['searching'] = True
                         state['search_result'] = backref.search_music(
-                            prompt=user_input
+                            prompt=user_input,
+                            genres=selected_genres,
+                            moods=selected_moods,
                         )
                         # print(state['search_result'])
                         
                     case 'break': raise Exception("💣")
                 st.rerun()
 
-    @st.cache_resource
-    def get_moods():
-        return backref.get_moods()
     
-    @st.cache_resource
-    def get_genre():
-        return backref.get_genres()
 
-    # Define a list of predetermined tags
-    genres_tag_list = get_genre() #["Pop", "Rock", "Ambience", "Jass", "CyberPhonk"]
-    moods_tag_list = get_moods() #["Sad", "Eletric", "Moody", "Relax", "Anger"]
-
-    # Add a tag selection field
-    selected_genres = st.multiselect("Genres", genres_tag_list)
-    selected_moods = st.multiselect("Moods", moods_tag_list)
+    
 
 
-    if selected_genres:
-        st.write("Selected Tags:", selected_genres)
+    # if selected_genres:
+    #     st.write("Selected Tags:", selected_genres)
 
     # Add a slider
     # slider_value = st.slider("Moods:", min_value=0, max_value=100, value=50)
