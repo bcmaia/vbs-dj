@@ -13,14 +13,10 @@ class Back:
         pass
 
     def identify_music(self, input: str, engineering: str):
-        prompt = f"\"{input}\" \n\n {engineering}"
-
-        return self.api.generate(prompt)
+        return self.api.generate(f"\"{input}\" \n\n {engineering}")
 
     def prompt_enhancement(self, input: str, engineering: str):
-        prompt = f"\"{input}\" \n\n {engineering}"
-        
-        return self.api.generate(prompt)
+        return self.api.generate(f"\"{input}\" \n\n {engineering}")
 
     def search_music():
         pass
