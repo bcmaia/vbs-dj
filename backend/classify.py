@@ -78,4 +78,5 @@ def classify(input):
     )
     command_text = response[0].predictions[0]
     command_confidence = response[0].confidences[0]
-    return command_text, command_confidence
+    
+    return command_text, command_confidence #returns a string and a float (a command and a confidence)
