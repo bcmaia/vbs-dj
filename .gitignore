@@ -7,8 +7,8 @@ instance/*
 .webassets-cache
 .env
 
-### Ignore data ###
-data/*
+# ### Ignore data ###
+# data/*
 
 ### Flask.Python Stack ###
 # Byte-compiled / optimized / DLL files
