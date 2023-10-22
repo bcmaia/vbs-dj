@@ -19,20 +19,26 @@ teste = archivist.get_strings(num)
 api = ApiMaster(token, api_is_active)
 api = api.connect()
 
-embbeds = []
-i = 0
-for music_text in teste:
-    print(i)
-    embbeds.append(api.embed(music_text))
-    i += 1
+# print(teste)
 
-output_name = 'database.csv'
+query = 'Which music is the best to dance to?'
+results = api.rerank(query, teste, 3)
 
-df = pd.read_csv(music_file_path)
-df = df.head(num)
+print(results)
+# embeds = []
+# i = 0
+# for music_text in teste:
+#     print(i)
+#     embbeds.append(api.embed(music_text))
+#     i += 1
 
-em = pd.DataFrame(embbeds)
+# output_name = 'database.csv'
 
-df = df.join(em)
+# # df = pd.read_csv(music_file_path)
+# # df = df.head(num)
 
-df.to_csv('../data/database.csv')
+# # em = pd.DataFrame(embbeds)
+
+# # df = df.join(em)
+
+# # df.to_csv('../data/database.csv')
