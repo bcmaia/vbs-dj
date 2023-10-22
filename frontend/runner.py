@@ -67,6 +67,8 @@ def front_runner(backref):
         if state["is_playing"]: return
         if state["current_song"] is None:
             state["current_song"] = state["music_queue"].pop(0)
+
+        if state["current_song"]['len'] is None: state["current_song"]['len'] = 30
         state["is_playing"] = True
 
     def play_now(music):
@@ -77,6 +79,7 @@ def front_runner(backref):
         state["is_playing"] = False
 
     def play_previous():
+        if state['progress'] is None: state['progress'] = 0
         if state['progress'] > 10 and state["current_song"] and state["current_song"]['len'] > 50.0:
             state['progress'] = 0
             return True
@@ -91,6 +94,7 @@ def front_runner(backref):
         return True
 
     def play_next():
+        if state['progress'] is None: state['progress'] = 0
         if state["current_song"]: state["played_songs"].append(state["current_song"])
         
         if state["music_queue"]: state["current_song"] = state["music_queue"].pop(0)
@@ -122,10 +126,12 @@ def front_runner(backref):
     with btn_cols[2]:
         if st.button("⏩"):
             play_next()
+            st.rerun()
 
     with btn_cols[3]:
         if st.button("Clear"):
-            raise Exception("NOT INPLEMENTED")
+            state['music_queue'] = []
+            st.rerun()
         
     with btn_cols[5]:
         if state['current_song'] and st.button("🎶"):
@@ -135,13 +141,16 @@ def front_runner(backref):
 
     with btn_cols[4]:
         if st.button("🪩"):
-            play_now({'track_name': 'Never Gonna Give You Up ( Rick roll song)', 'duration': 212.0})
+            play_now({'track_name': 'Never Gonna Give You Up ( Rick roll song)', 'len': 212.0})
             state['audio'] = not state['audio']
             pause()
             st.rerun()
 
-    if state['audio']:
-        with slot_player: show_audioplayer(state['current_song']['track_name'])
+    if state['audio'] and state['current_song']:
+        try:
+            with slot_player: show_audioplayer(state['current_song']['track_name'])
+        except:
+            state['error_msg'] = "ERROR: could not fetch the music."
 
     # Update progress bar
     if state["is_playing"]:
@@ -195,16 +204,29 @@ def front_runner(backref):
 
     # Add a button
     cols = st.columns(5)
+
     with cols[0]:
+        if st.button("Quick Search"):
+            state['searching'] = True
+            state['search_result'] = {0: {
+                'track_name': backref.identify_music(user_input),
+                'len': 30
+            }}
+
+
+    with cols[1]:
         if st.button("Search"):
             # st.write("You entered:", user_input)
             state['searching'] = True
-            music = backref.identify_music(user_input)
-            raise Exception("Cannot play: " + music + ". Skill issue.")
+            state['search_result'] = backref.search_music(
+                prompt=user_input
+            )
+            st.rerun
+            # raise Exception("Cannot play: " + music + ". Skill issue.")
 
-    with cols[1]:
+    with cols[2]:
         if st.button("Execute"):
-            st.write("You entered:", user_input)
+            # st.write("You entered:", user_input)
             instruction, trust = backref.classify_instruction(user_input)
             print(instruction, trust)
             if trust < MIN_TRUST_LEVEL:
@@ -215,8 +237,16 @@ def front_runner(backref):
                     case "previous": play_previous()
                     case "next": play_next()
                     case 'stop': pause()
-                    case 'find': pass
+                    case 'find': 
+                        # print("In find!")
+                        state['searching'] = True
+                        state['search_result'] = backref.search_music(
+                            prompt=user_input
+                        )
+                        # print(state['search_result'])
+                        
                     case 'break': raise Exception("💣")
+                st.rerun()
 
     # Define a list of predetermined tags
     genres_tag_list = ["Pop", "Rock", "Ambience", "Jass", "CyberPhonk"]
@@ -253,20 +283,31 @@ def front_runner(backref):
         selected_rows = edited_df[edited_df.Select]
         return selected_rows.drop('Select', axis=1)
 
-    # TODO: implement search
-    search_result = pd.DataFrame(music_pool, columns=list(music_pool[0].keys()))
-
-    if state['searching']:
-        selection = dataframe_with_selections(search_result)
+    selection = None
+    if state['searching'] and state['search_result']:
+        # st.write(state['search_result'])
+        l = list(state['search_result'].values())
+        df = pd.DataFrame(l, columns=list(l[0].keys()))
+        selection = dataframe_with_selections(df)
+        print(selection)
+        # print(selection)
 
     cols_add_musics = st.columns(2)
     with cols_add_musics[0]:
-        if st.button("Play next"):
-            raise Exception("NOT INPLEMENTED")
+        if st.button("Play next") and None is not selection:
+            df = selection.to_dict(orient='records')
+            for x in df:
+                state['music_queue'].insert(0, x)
+            st.rerun()
+            
+
         
     with cols_add_musics[1]:
-        if st.button("Add to queue"):
-            raise Exception("NOT INPLEMENTED")
+        if st.button("Add to queue")and None is not selection:
+            df = selection.to_dict(orient='records')
+            for x in df:
+                state['music_queue'].append(x)
+            st.rerun()
 
 
 
@@ -290,9 +331,10 @@ def front_runner(backref):
     if None != state["current_song"]:
         progress = None
         with slot_progress_bar: progress = st.progress(state['progress'])
-        step = state["current_song"]['len'] / 100
+        step = state["current_song"]['len'] / 100 if None is not state["current_song"]['len'] else 0.01
+        n = 0 if None is state['progress'] else state['progress']
         if state["is_playing"]:
-            for i in range(state['progress'], 101):
+            for i in range(n, 101):
                 progress.progress(i)
                 time.sleep(step)
                 state["progress"] = i

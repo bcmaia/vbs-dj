@@ -5,7 +5,6 @@ import random
 import warnings
 
 class MusicArchivist:
-    musics = None
 
     def __init__(self, music_file_path : str) -> None:
         songs = pd.read_csv(music_file_path) # Reading
@@ -16,12 +15,17 @@ class MusicArchivist:
         map_songs = {song: idx for idx, song in enumerate(songs.Id.unique())}
         songs['Id'] = songs['Id'].map(map_songs)
         
-        self.musics = self.stardardise_values(songs)
+        self.__musics = self.stardardise_values(songs)
+
+    @property
+    def df(self):
+        return self.__musics
 
     def calculate_similarity(a, b):
         return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
-    def stardardise_values(self, df):
+    @staticmethod
+    def stardardise_values(df):
         valid_columns = df.columns.values.tolist()
         valid_columns = [valid_columns[i] for i in range(7, 29)]
 
@@ -61,7 +65,7 @@ class MusicArchivist:
         final_string += "lyrics: \n {}\n\n".format(song_dict['lyrics'])
         return final_string
 
-        # song_dict = self.musics.loc[(self.musics.Id==songId)].to_dict(orient="records")[0]
+        # song_dict = self.__musics.loc[(self.__musics.Id==songId)].to_dict(orient="records")[0]
         # print(songId)
 
         # final_string = ''
@@ -73,7 +77,7 @@ class MusicArchivist:
         # return final_string
 
     def get_strings(self, num):
-        df = self.musics.copy()
+        df = self.__musics.copy()
         sample_ids = random.sample(df['Id'].unique().tolist(), num)
         
         string_list = []
@@ -87,10 +91,12 @@ class MusicArchivist:
 
         # strings = []
         # for song in songlist:
-        #     strings.append(self.music_to_str(self, self.musics, song))
+        #     strings.append(self.music_to_str(self, self.__musics, song))
 
         # return strings
 
     # def save(self, name):
     #     print(self.get_strings())
-        
+    
+    def preprocess(self):
+        pass
