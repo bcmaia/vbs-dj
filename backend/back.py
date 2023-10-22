@@ -3,6 +3,7 @@ from .MusicArchivist import MusicArchivist
 from .classify import classify as classify
 import pandas as pd
 import streamlit as st
+import numpy as np
 
 ENGENEERING = "Answer only with the name of the music as the following example: 'Fur Elise'\nTell me only the name of the music are you being asked to play."
 
@@ -74,6 +75,47 @@ class Back:
         
         songs['similarity'] = diff
         return songs.sort_values(by='similarity', ascending=False).head(top_n)
+
+    def predict_vibe(self, df, input, k_means = 10):
+        input_embedding = self.api.embed(input)
+
+        similars = self.entropy_search(df, input, k_means).tolist()
+        aux = []
+        for i in range(k_means):
+            aux.append([similars[i][j] for j in range(7, 29)])
+
+        res = []
+        for j in range(0, len(aux[0])):
+            tmp = 0
+            for i in range(0, len(aux)):
+                tmp = tmp + aux[i][j]
+            res.append(tmp/k_means)
+
+        prediction={}
+
+        valid_columns = df.columns.values.tolist()
+        valid_columns = [valid_columns[i] for i in range(7, 29)]
+
+        index = 0
+        for column in valid_columns:
+
+            mean = df[column].mean()
+            std = df[column].std()
+
+            if res[index] > mean + 2*std: value="Very High"
+            elif res[index ]> mean + std & res[index] <= mean + 2*std: value="High"
+            elif res[index] >= mean - std & res[index] <= mean + std: value="Average"
+            elif res[index] < mean - std & res[index] >= mean - 2*std: value="Low"
+            else: value="Very Low"
+
+            if value=="High" or value=="Very High":
+                prediction[column] = value
+            index += 1
+
+        return prediction
+
+    def find_next_music(self, df, curr_list):
+        pass
         
 
 
