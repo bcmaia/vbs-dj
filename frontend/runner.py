@@ -7,15 +7,8 @@ from .audioplayer import show_audioplayer
 MIN_TRUST_LEVEL = 0.5
 
 def front_runner(backref):
-    # Define your music_queue of tuples (name, duration)
+    # Starting music queue
     music_queue = [
-        {"track_name": "Dejavu", "len": 5.7},
-        {"track_name": "Crab rave", "len": 2.7},
-        {"track_name": "Foggy dew", "len": 70.7},
-        {"track_name": "gangstar paradise", "len": 10.7},
-    ]
-
-    music_pool = [
         {"track_name": "Dejavu", "len": 5.7},
         {"track_name": "Crab rave", "len": 2.7},
         {"track_name": "Foggy dew", "len": 70.7},
@@ -48,15 +41,11 @@ def front_runner(backref):
     slot_curr_playing = st.empty()
     slot_progress_bar = st.empty()
     slot_err = st.empty()
-
-    # Buttons here
     btn_cols = st.columns(7, gap="small")
-
-
-    # Display the music_queue
-
     slot_queues = st.columns(2)
 
+
+    # Operations
     def play():
         if state["is_playing"]: return
         if state["current_song"] is None and state["music_queue"]:
@@ -229,13 +218,16 @@ def front_runner(backref):
 
     with cols[1]:
         if st.button("Search"):
-            state['searching'] = True
-            state['search_result'] = backref.search_music(
-                prompt=user_input,
-                genres=selected_genres,
-                moods=selected_moods,
-            )
-            st.rerun
+            if user_input:
+                state['searching'] = True
+                state['search_result'] = backref.search_music(
+                    prompt=user_input,
+                    genres=selected_genres,
+                    moods=selected_moods,
+                )
+                st.rerun
+            else:
+                state['error_msg'] = "Error: empty input"
 
     with cols[2]:
         if st.button("Execute"):
@@ -249,12 +241,15 @@ def front_runner(backref):
                     case "next": play_next()
                     case 'stop': pause()
                     case 'find': 
-                        state['searching'] = True
-                        state['search_result'] = backref.search_music(
-                            prompt=user_input,
-                            genres=selected_genres,
-                            moods=selected_moods,
-                        )
+                        if user_input:
+                            state['searching'] = True
+                            state['search_result'] = backref.search_music(
+                                prompt=user_input,
+                                genres=selected_genres,
+                                moods=selected_moods,
+                            )
+                        else:
+                            state['error_msg'] = "Error: empty input"
                         
                     case 'break': raise Exception("💣")
                 st.rerun()

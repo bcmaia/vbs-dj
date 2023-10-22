@@ -27,7 +27,6 @@ To run the our application locally, make sure you have python3 installed and als
 
 ```bash
 pip install cohere
-pip install random2
 pip install fuzzywuzzy
 pip install pandas
 pip install streamlit
