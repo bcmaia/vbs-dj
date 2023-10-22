@@ -3,17 +3,13 @@ from cohere.responses.classify import Example
 import os
 from dotenv import load_dotenv
 
-#pip install dotenv
-#pip install cohere
 
 # Setup
 load_dotenv()
 api_is_active = False
-token = os.environ.get('COHERE_TOKEN')
 
-co = cohere.Client(token)
+co = cohere.Client('MkWTdmLb0BQaSxI9K0fN9PjbPUT1BKDPYN4WEN2b')
 
-#examples and their matching classification for the cohere classify
 examples = [
     Example("Add that music", "queue"),
     Example("Insert this one next", "queue"),
@@ -65,20 +61,38 @@ examples = [
     Example("Breaker","break"),
 ]
 
-#receives a string as input
-def classify(input):
-    user_text = [input] #stores the string as a string vector
+inputs=[
+  "Can I hear example",
+  "End it",
+  "Let's go",
+  "Turn it",
+  "Show me",
+  "Halt",
+  "Enough",
+  "Volume up",
+  "Let's see",
+  "Margarret",
+  "opjr2ef",
+  "prejpqerjbmpeo",
+  "vemknma elçonbqjpe",
+]
 
-    #forces the user_text to never be empty to avoid an error response with the API
-    if(len(user_text[0])<1):
-        user_text = ["error"]   
+twinput=[
+    "Okay",
+]
 
-    #calls the classifier to classify according to the examples
-    response = co.classify(
-    inputs=user_text,
-    examples=examples,
-    )
-    command_text = response[0].predictions[0]
-    command_confidence = response[0].confidences[0]
+response = co.classify(
+  inputs=inputs,
+  examples=examples,
+)
+for _,j in enumerate(response):
+    print(j.predictions[0])
+    print(j.confidences[0])
+    print()
 
-    return command_text, command_confidence #returns a string and a float (a command and a confidence)
+response = co.classify(
+  inputs=twinput,
+  examples=examples,
+)
+
+print(response[0].predictions[0])
