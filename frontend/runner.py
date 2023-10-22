@@ -1,21 +1,25 @@
 import streamlit as st
 import time
 import pandas as pd
+from .audioplayer import show_audioplayer
+
+# CONSTANTS
+MIN_TRUST_LEVEL = 0.5
 
 def front_runner(backref):
     # Define your music_queue of tuples (name, duration)
     music_queue = [
-        {"track_name": "Song 1", "len": 5.7},
-        {"track_name": "Song 2", "len": 2.7},
-        {"track_name": "Song 2.5", "len": 70.7},
-        {"track_name": "Song 3", "len": 10.7},
+        {"track_name": "Dejavu", "len": 5.7},
+        {"track_name": "Crab rave", "len": 2.7},
+        {"track_name": "Foggy dew", "len": 70.7},
+        {"track_name": "gangstar paradise", "len": 10.7},
     ]
 
     music_pool = [
-        {"track_name": "aaaaa", "len": 56.7},
-        {"track_name": "vvvvv", "len": 2.67},
-        {"track_name": "Songdasdas5", "len": 770.7},
-        {"track_name": "Sffgg", "len": 12.7},
+        {"track_name": "Dejavu", "len": 5.7},
+        {"track_name": "Crab rave", "len": 2.7},
+        {"track_name": "Foggy dew", "len": 70.7},
+        {"track_name": "gangstar paradise", "len": 10.7},
     ]
 
 
@@ -31,6 +35,7 @@ def front_runner(backref):
             "is_playing": False,
             "error_msg": None,
             "searching": False,
+            "audio": False,
         }
 
     # @st.cache_resource
@@ -43,12 +48,13 @@ def front_runner(backref):
     st.title("Music Player App")
 
     # Slots
+    slot_player = st.empty()
     slot_curr_playing = st.empty()
     slot_progress_bar = st.empty()
     slot_err = st.empty()
 
     # Buttons here
-    btn_cols = st.columns(6, gap="small")
+    btn_cols = st.columns(8, gap="small")
 
 
     # Display the music_queue
@@ -57,35 +63,39 @@ def front_runner(backref):
 
     slot_queues = st.columns(2)
 
-    def pĺay():
+    def play():
         if state["is_playing"]: return
         if state["current_song"] is None:
             state["current_song"] = state["music_queue"].pop(0)
         state["is_playing"] = True
 
+    def play_now(music):
+        state['current_song'] = music
+        play()
+
     def pause():
         state["is_playing"] = False
 
-    def play_previus():
-        # if not state["is_playing"]: return
-        if not state["played_songs"]: return False
-
+    def play_previous():
         if state['progress'] > 10 and state["current_song"] and state["current_song"]['len'] > 50.0:
             state['progress'] = 0
             return True
 
         if state["current_song"]: state["music_queue"].insert(0, state["current_song"])
-        state["current_song"] = state["played_songs"].pop()
+
+        if state["played_songs"]: state["current_song"] = state["played_songs"].pop()
+        else: state["current_song"] = None
+
         state['progress'] = 0
 
         return True
 
     def play_next():
-        # if not state["is_playing"]: return
-        if not state["music_queue"]: return False
-
         if state["current_song"]: state["played_songs"].append(state["current_song"])
-        state["current_song"] = state["music_queue"].pop(0)
+        
+        if state["music_queue"]: state["current_song"] = state["music_queue"].pop(0)
+        else: state["current_song"] = None
+
         state['progress'] = 0
 
         return True
@@ -94,26 +104,44 @@ def front_runner(backref):
         with slot_err:
             st.write(state['error_msg'])
 
-    # Play, Stop, Next, and Previous buttons
     with btn_cols[0]:
-        if st.button("Play"):
-            pĺay()
+        if st.button("⏪"):
+            play_previous()
 
+    # Play, Stop, Next, and Previous buttons
     with btn_cols[1]:
-        if st.button("Pause"):
-            state["is_playing"] = False
-
+        if state['is_playing']:
+            if st.button("⏸️"):
+                pause()
+                st.rerun()
+        else:
+            if st.button("▶️"):
+                play()
+                st.rerun()
+    
     with btn_cols[2]:
-        if st.button("Next"):
+        if st.button("⏩"):
             play_next()
 
     with btn_cols[3]:
-        if st.button("Previous"):
-            play_previus()
-
-    with btn_cols[4]:
         if st.button("Clear"):
             raise Exception("NOT INPLEMENTED")
+        
+    with btn_cols[5]:
+        if state['current_song'] and st.button("🎶"):
+            state['audio'] = not state['audio']
+            pause()
+            st.rerun()
+
+    with btn_cols[4]:
+        if st.button("🪩"):
+            play_now({'track_name': 'Never Gonna Give You Up ( Rick roll song)', 'duration': 212.0})
+            state['audio'] = not state['audio']
+            pause()
+            st.rerun()
+
+    if state['audio']:
+        with slot_player: show_audioplayer(state['current_song']['track_name'])
 
     # Update progress bar
     if state["is_playing"]:
@@ -130,17 +158,22 @@ def front_runner(backref):
     # Display the currently playing and played songs
     if state["current_song"]:
         with slot_curr_playing:
-            st.write("Currently Playing: " + state["current_song"]['track_name'])
+            t = "..." if state["current_song"]['track_name'] == 'Never Gonna Give You Up ( Rick roll song)' else state["current_song"]['track_name']
+            st.write("Currently Playing: " + t)
 
     if state["music_queue"]:
         with slot_queues[0]:
             st.write("Music Queue:")
-            st.dataframe(pd.DataFrame(state['music_queue']))
+            df = None if None is state['music_queue'] else pd.DataFrame(state['music_queue'])
+            if None is not df:
+                st.dataframe(df.head(10))
 
     if state["played_songs"]:
         with slot_queues[1]:
-            st.write("You've listened:")
-            st.dataframe(pd.DataFrame(state['played_songs']))
+            st.write("You've listened to:")
+            df = None if None is state['played_songs'] else pd.DataFrame(state['played_songs'])
+            if None is not df: 
+                st.dataframe(df.head(10))
 
 
 
@@ -164,12 +197,26 @@ def front_runner(backref):
     cols = st.columns(5)
     with cols[0]:
         if st.button("Search"):
-            st.write("You entered:", user_input)
+            # st.write("You entered:", user_input)
             state['searching'] = True
+            music = backref.identify_music(user_input)
+            raise Exception("Cannot play: " + music + ". Skill issue.")
 
     with cols[1]:
         if st.button("Execute"):
             st.write("You entered:", user_input)
+            instruction, trust = backref.classify_instruction(user_input)
+            print(instruction, trust)
+            if trust < MIN_TRUST_LEVEL:
+                state['error_msg'] = "ERROR: Could not understand the command."
+            else:
+                match instruction:
+                    case "play": play()
+                    case "previous": play_previous()
+                    case "next": play_next()
+                    case 'stop': pause()
+                    case 'find': pass
+                    case 'break': raise Exception("💣")
 
     # Define a list of predetermined tags
     genres_tag_list = ["Pop", "Rock", "Ambience", "Jass", "CyberPhonk"]
