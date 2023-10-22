@@ -12,10 +12,16 @@ class Back:
     def classify_instruction(self, input_string): #receives a string
         return classify(input_string) #returns a string and a float (a command and a confidence)
 
-    def identify_music():
+    def identify_music(self, s : str):
         pass
 
-    def search_music():
+    def get_moods(self):
+        pass
+
+    def get_genres(self):
+        pass
+
+    def identify_music(self):
         pass
 
 @st.cache_resource

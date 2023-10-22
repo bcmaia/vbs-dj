@@ -197,7 +197,7 @@ def front_runner(backref):
     cols = st.columns(5)
     with cols[0]:
         if st.button("Search"):
-            st.write("You entered:", user_input)
+            # st.write("You entered:", user_input)
             state['searching'] = True
             music = backref.identify_music(user_input)
             raise Exception("Cannot play: " + music + ". Skill issue.")
