@@ -1,3 +1,7 @@
+---- Music Identification ----
 Tell me only the name of the music are you being asked to play.
 Tell me only the name of one music that fits the description you have been given. For example: 'Fur Elise'
 Answer only with the name of the music as the following example: 'Fur Elise'\nTell me only the name of the music are you being asked to play.
+
+---- Prompt Enhancement ----
+Rewrite the previous frase using more formal phrases to describe the music.
