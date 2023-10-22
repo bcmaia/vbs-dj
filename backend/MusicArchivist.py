@@ -2,6 +2,7 @@ import json
 import numpy as np
 import pandas as pd
 import random
+import warnings
 
 class MusicArchivist:
     musics = None
@@ -9,7 +10,7 @@ class MusicArchivist:
     def __init__(self, music_file_path : str) -> None:
         songs = pd.read_csv(music_file_path) # Reading
         songs.rename(columns={'Unnamed: 0': 'Id'}, inplace=True) # Renaming
-
+        warnings.filterwarnings("ignore")
 
         # Mapping the ids
         map_songs = {song: idx for idx, song in enumerate(songs.Id.unique())}

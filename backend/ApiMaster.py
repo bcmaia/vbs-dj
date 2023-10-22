@@ -29,3 +29,12 @@ class ApiMaster:
             documents=docs,
             top_n=top_n
         ).results
+
+    def generate(self, prompt):
+        if not self.__active: return None
+
+        return self.__co.generate(
+            prompt=prompt
+        ).generations[0].strip()
+
+
