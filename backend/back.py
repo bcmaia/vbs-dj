@@ -8,9 +8,15 @@ class Back:
         self.api = ApiMaster(token, True)
         self.archivist = MusicArchivist(data_path)
 
-    # def setup(self):
+    def classify_instruction():
+        pass
 
-    
+    def identify_music():
+        pass
+
+    def search_music():
+        pass
+
 @st.cache_resource
 def get_back(token, data_path):
     return Back(token, data_path)
