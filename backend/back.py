@@ -55,6 +55,9 @@ class Back:
             artist=artist,
             most_recent=newer,
         )
+    
+    def entropy_search(self, input: str):
+        pass
 
 
 @st.cache_resource

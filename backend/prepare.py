@@ -13,7 +13,7 @@ data_path = '../data/tcc_ceds_music.csv'
 
 archivist = MusicArchivist(data_path)
 
-num = 1000
+num = 10000
 teste = archivist.get_strings(num)
 
 api = ApiMaster(token, api_is_active)
