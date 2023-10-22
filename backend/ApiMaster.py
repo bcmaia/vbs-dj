@@ -2,18 +2,23 @@ import cohere
 import random
 from fuzzywuzzy import fuzz
 
-def get_specific_values(df, songId):
-    song_dict = df.loc[(df.Id==songId)].to_dict(orient="records")[0]
 
-    mood_columns = [df.columns.values.tolist()[i] for i in range(8, 30)]
+def get_mood_similarity(row, expected_moods, column_list):
 
     mood_list = []
 
-    for mood in mood_columns:
-        if song_dict[mood] == 'High' or song_dict[mood] == 'Very High':
-            mood_list.append(mood.split('_')[0])
+    for i in range(8, 30):
+        if row[i] == 'High' or row[i] == 'Very High':
+            mood_list.append(column_list[i].split('_')[0])
+    
+    if len(list(set(mood_list))) == 0: return 0
+    else: return len(list(set(mood_list) & set(expected_moods))) / len(set(mood_list + expected_moods))
 
-    return song_dict['track_name'], song_dict['artist_name'], mood_list
+    
+def similarity(value, expected_value):
+    ratio = fuzz.ratio(value, expected_value)
+    if ratio >= 0.7: return ratio
+    else: return 0
     
 
 def restriction_search(df, amount=100, song_name=None, artist=None, most_recent=None, prefered_genres=[], prefered_moods=[], weights=[0.33, 0.33, 0.33, 0.33, 0.33]):
@@ -31,26 +36,21 @@ def restriction_search(df, amount=100, song_name=None, artist=None, most_recent=
     restriction_df['w_genres'] = 0
     restriction_df.loc[(restriction_df['genre'].isin(prefered_genres)), 'w_genres'] = 1
 
-    restriction_df['w_song'] = 0
-    restriction_df['w_artist'] = 0
-    for i, _ in restriction_df.iterrows():
+    #restriction_df['w_song'] = 0
+    #restriction_df['w_artist'] = 0
 
-        name_of_song, name_of_artist, moods = get_specific_values(df, restriction_df.loc[i, 'Id'])
-        
-        if song_name is not None:
-            ratio = fuzz.ratio(name_of_song, song_name)
-            if ratio >= 0.7:
-                restriction_df.loc[i, 'w_song'] = ratio
-        
-        if artist is not None:
-            ratio = fuzz.ratio(name_of_artist, artist)
-            if ratio >= 0.7:
-                restriction_df.loc[i, 'w_artist'] = ratio
-        
-        if len(list(set(moods))) == 0:
-            restriction_df.loc[i, 'w_moods'] = 0
-        else:
-            restriction_df.loc[i, 'w_moods'] = len(list(set(moods) & set(prefered_moods))) / len(set(moods + prefered_moods))
+    w_song_list = restriction_df['track_name'].tolist()
+    ratio_song_list = [similarity(song, song_name) for song in w_song_list]
+    restriction_df['w_song'] = ratio_song_list
+
+    w_artist_list = restriction_df['artist_name'].tolist()
+    ratio_artist_list = [similarity(artist_name, artist) for artist_name in w_artist_list]
+    restriction_df['w_artist'] = ratio_artist_list
+
+    column_list = df.columns.values.tolist()
+    df_list = restriction_df.values.tolist()
+    ratio_mood_list = [get_mood_similarity(row, prefered_moods, column_list) for row in df_list]
+    restriction_df['w_moods'] = ratio_mood_list
 
     restriction_df['w'] = (weights[0]*restriction_df['w_song'] + weights[1]*restriction_df['w_artist'] + weights[2]*restriction_df['w_year'] + weights[3]*restriction_df['w_genres'] + weights[4]*restriction_df['w_moods'])/sum(weights)
 

@@ -40,7 +40,7 @@ class Back:
         moods: list[str] = [],
         newer: bool | None = None,
         rec_amount=10,
-        doc_amount=1000,
+        doc_amount=1_000,
     ):
         if None == music and prompt != None:
             music = self.identify_music(prompt)
