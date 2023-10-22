@@ -63,7 +63,7 @@ def front_runner(backref):
 
     slot_queues = st.columns(2)
 
-    def pĺay():
+    def play():
         if state["is_playing"]: return
         if state["current_song"] is None:
             state["current_song"] = state["music_queue"].pop(0)
@@ -71,12 +71,12 @@ def front_runner(backref):
 
     def play_now(music):
         state['current_song'] = music
-        pĺay()
+        play()
 
     def pause():
         state["is_playing"] = False
 
-    def play_previus():
+    def play_previous():
         if state['progress'] > 10 and state["current_song"] and state["current_song"]['len'] > 50.0:
             state['progress'] = 0
             return True
@@ -106,7 +106,7 @@ def front_runner(backref):
 
     with btn_cols[0]:
         if st.button("⏪"):
-            play_previus()
+            play_previous()
 
     # Play, Stop, Next, and Previous buttons
     with btn_cols[1]:
@@ -116,7 +116,7 @@ def front_runner(backref):
                 st.rerun()
         else:
             if st.button("▶️"):
-                pĺay()
+                play()
                 st.rerun()
     
     with btn_cols[2]:
@@ -206,12 +206,13 @@ def front_runner(backref):
         if st.button("Execute"):
             st.write("You entered:", user_input)
             instruction, trust = backref.classify_instruction(user_input)
+            print(instruction, trust)
             if trust < MIN_TRUST_LEVEL:
                 state['error_msg'] = "ERROR: Could not understand the command."
             else:
                 match instruction:
                     case "play": play()
-                    case "previus": play_previus()
+                    case "previous": play_previous()
                     case "next": play_next()
                     case 'stop': pause()
                     case 'find': pass

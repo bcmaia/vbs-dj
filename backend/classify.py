@@ -29,7 +29,7 @@ examples = [
     Example("Previous", "previous"),
     Example("Say again","previous"),
     Example("Before", "previous"),
-    Example("Next one", "next"),
+    Example("Next", "next"),
     Example("Further ahead", "next"),
     Example("Skip", "next"),
     Example("Play", "play"),

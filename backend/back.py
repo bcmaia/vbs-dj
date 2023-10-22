@@ -9,7 +9,7 @@ class Back:
         self.api = ApiMaster(token, True)
         self.archivist = MusicArchivist(data_path)
 
-    def classify_instruction(input_string): #receives a string
+    def classify_instruction(self, input_string): #receives a string
         return classify(input_string) #returns a string and a float (a command and a confidence)
 
     def identify_music():
