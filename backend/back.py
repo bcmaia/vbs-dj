@@ -8,8 +8,8 @@ class Back:
         self.api = ApiMaster(token, True)
         self.archivist = MusicArchivist(data_path)
 
-    def classify_instruction():
-        pass
+    def classify_instruction(self, s):
+        return "break", .69
 
     def identify_music():
         pass

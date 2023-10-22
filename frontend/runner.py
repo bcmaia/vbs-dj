@@ -2,6 +2,9 @@ import streamlit as st
 import time
 import pandas as pd
 
+# CONSTANTS
+MIN_TRUST_LEVEL = 0.5
+
 def front_runner(backref):
     # Define your music_queue of tuples (name, duration)
     music_queue = [
@@ -48,7 +51,7 @@ def front_runner(backref):
     slot_err = st.empty()
 
     # Buttons here
-    btn_cols = st.columns(6, gap="small")
+    btn_cols = st.columns(8, gap="small")
 
 
     # Display the music_queue
@@ -67,25 +70,25 @@ def front_runner(backref):
         state["is_playing"] = False
 
     def play_previus():
-        # if not state["is_playing"]: return
-        if not state["played_songs"]: return False
-
         if state['progress'] > 10 and state["current_song"] and state["current_song"]['len'] > 50.0:
             state['progress'] = 0
             return True
 
         if state["current_song"]: state["music_queue"].insert(0, state["current_song"])
-        state["current_song"] = state["played_songs"].pop()
+
+        if state["played_songs"]: state["current_song"] = state["played_songs"].pop()
+        else: state["current_song"] = None
+
         state['progress'] = 0
 
         return True
 
     def play_next():
-        # if not state["is_playing"]: return
-        if not state["music_queue"]: return False
-
         if state["current_song"]: state["played_songs"].append(state["current_song"])
-        state["current_song"] = state["music_queue"].pop(0)
+        
+        if state["music_queue"]: state["current_song"] = state["music_queue"].pop(0)
+        else: state["current_song"] = None
+
         state['progress'] = 0
 
         return True
@@ -94,24 +97,26 @@ def front_runner(backref):
         with slot_err:
             st.write(state['error_msg'])
 
-    # Play, Stop, Next, and Previous buttons
     with btn_cols[0]:
-        if st.button("Play"):
-            pĺay()
+        if st.button("⏪"):
+            play_previus()
 
+    # Play, Stop, Next, and Previous buttons
     with btn_cols[1]:
-        if st.button("Pause"):
-            state["is_playing"] = False
-
+        if state['is_playing']:
+            if st.button("⏸️"):
+                pause()
+                st.rerun()
+        else:
+            if st.button("▶️"):
+                pĺay()
+                st.rerun()
+    
     with btn_cols[2]:
-        if st.button("Next"):
+        if st.button("⏩"):
             play_next()
 
     with btn_cols[3]:
-        if st.button("Previous"):
-            play_previus()
-
-    with btn_cols[4]:
         if st.button("Clear"):
             raise Exception("NOT INPLEMENTED")
 
@@ -135,12 +140,16 @@ def front_runner(backref):
     if state["music_queue"]:
         with slot_queues[0]:
             st.write("Music Queue:")
-            st.dataframe(pd.DataFrame(state['music_queue']))
+            df = None if None is state['music_queue'] else pd.DataFrame(state['music_queue'])
+            if None is not df:
+                st.dataframe(df.head(10))
 
     if state["played_songs"]:
         with slot_queues[1]:
-            st.write("You've listened:")
-            st.dataframe(pd.DataFrame(state['played_songs']))
+            st.write("You've listened to:")
+            df = None if None is state['played_songs'] else pd.DataFrame(state['played_songs'])
+            if None is not df: 
+                st.dataframe(df.head(10))
 
 
 
@@ -170,6 +179,17 @@ def front_runner(backref):
     with cols[1]:
         if st.button("Execute"):
             st.write("You entered:", user_input)
+            instruction, trust = backref.classify_instruction(user_input)
+            if trust < MIN_TRUST_LEVEL:
+                state['error_msg'] = "ERROR: Could not understand the command."
+            else:
+                match instruction:
+                    case "play": play()
+                    case "previus": play_previus()
+                    case "next": play_next()
+                    case 'stop': pause()
+                    case 'find': pass
+                    case 'break': raise Exception("💣")
 
     # Define a list of predetermined tags
     genres_tag_list = ["Pop", "Rock", "Ambience", "Jass", "CyberPhonk"]
