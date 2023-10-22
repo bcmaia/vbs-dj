@@ -2,6 +2,7 @@ import cohere
 import random
 from fuzzywuzzy import fuzz
 
+# Calculate the similarity between moods
 def get_mood_similarity(row, expected_moods, column_list):
 
     mood_list = []
@@ -12,12 +13,14 @@ def get_mood_similarity(row, expected_moods, column_list):
     
     if len(list(set(mood_list))) == 0: return 0
     else: return len(list(set(mood_list) & set(expected_moods))) / len(set(mood_list + expected_moods))
-    
+
+# Calculates similarity of strings
 def similarity(value, expected_value):
     ratio = fuzz.ratio(value, expected_value)
     if ratio >= 0.7: return ratio
     else: return 0
 
+# Uses certain restrictions to 
 def restriction_search(df, amount=100, song_name=None, artist=None, most_recent=None, prefered_genres=[], prefered_moods=[], weights=[0.33, 0.33, 0.33, 0.33, 0.33]):
     restriction_df = df.copy()
     
@@ -50,6 +53,7 @@ def restriction_search(df, amount=100, song_name=None, artist=None, most_recent=
 
     return restriction_df.sort_values(by='w', ascending=False).head(amount)
 
+# Writes a song data in a natural language formatting
 def song_string(df, songId):
     song_dict = df.loc[(df.Id==songId)].to_dict(orient="records")[0]
 
@@ -69,6 +73,7 @@ def song_string(df, songId):
     final_string += "lyrics: \n {}\n\n".format(song_dict['lyrics'])
     return final_string
 
+# Turns many songs to strings
 def string_many_songs(
     df,
     how_many=100,
@@ -104,18 +109,21 @@ def string_many_songs(
 
     return string_list
 
+# Class that deals with the API in a safe and controlled way
 class ApiMaster:
     def __init__(self, token: str, active: bool) -> None:
         self.__token = token
         self.__active = active
         self.__co = None
 
+    # Opens a connction to Cohere's API
     def connect(self):
         if not self.__active:
             return self
         self.__co = cohere.Client(self.__token)
         return self
 
+    # Deals with the embedding requests
     def embed(self, txt):
         if not self.__active:
             return None
@@ -125,6 +133,7 @@ class ApiMaster:
             model="small",
         ).embeddings
 
+    # Deals with the reranking requests
     def rerank(self, query, docs, top_n):
         if not self.__active:
             return None
@@ -135,12 +144,14 @@ class ApiMaster:
             model="rerank-english-v2.0", query=query, documents=docs, top_n=top_n
         ).results
 
+    # Deals with generation requests
     def generate(self, prompt):
         if not self.__active:
             return None
 
         return self.__co.generate(prompt=prompt).generations[0].strip()
 
+    # Searchs for a specific music
     def search_music(
         self,
         df,
