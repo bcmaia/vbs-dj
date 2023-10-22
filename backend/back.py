@@ -56,8 +56,25 @@ class Back:
             most_recent=newer,
         )
     
-    def entropy_search(self, input: str):
-        pass
+    def calculate_similarity(self, a, b):
+        return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+
+    def entropy_search(self, df, input: str, top_n=3):
+        input_embedding = self.api.embed(input)
+        songs = df.copy()
+        songs.rename(columns={'Unnamed: 0': 'Id'}, inplace=True)
+        map_songs = {song: idx for idx, song in enumerate(songs.Id.unique())}
+        songs['Id'] = songs['Id'].map(map_songs)
+
+        embeds = songs['embeds'].tolist()
+        diff = []   
+
+        for embed in embeds:
+            diff.append(self.calculate_similarity(input_embedding, embed))
+        
+        songs['similarity'] = diff
+        return songs.sort_values(by='similarity', ascending=False).head(top_n)
+        
 
 
 @st.cache_resource
